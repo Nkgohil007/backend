@@ -1,0 +1,150 @@
+{
+    "clientName": "Thunder Client",
+    "collectionName": "Youtube",
+    "collectionId": "3275e94e-d8ef-4091-98a1-40f30794b3b0",
+    "dateExported": "2024-08-30T13:28:25.335Z",
+    "version": "1.2",
+    "folders": [
+        {
+            "_id": "e142b051-c31d-4734-8f1d-a9ce13f737bb",
+            "name": "User",
+            "containerId": "",
+            "created": "2024-08-30T10:50:05.124Z",
+            "sortNum": 10000
+        }
+    ],
+    "requests": [
+        {
+            "_id": "b682b310-aa58-4899-953c-ca8a41915ea9",
+            "colId": "3275e94e-d8ef-4091-98a1-40f30794b3b0",
+            "containerId": "e142b051-c31d-4734-8f1d-a9ce13f737bb",
+            "name": "register",
+            "url": "{{server}}/users/register",
+            "method": "POST",
+            "sortNum": 10000,
+            "created": "2024-08-30T10:50:05.125Z",
+            "modified": "2024-08-30T11:16:59.826Z",
+            "headers": [],
+            "body": {
+                "type": "formdata",
+                "raw": "",
+                "form": [
+                    {
+                        "name": "fullName",
+                        "value": "two"
+                    },
+                    {
+                        "name": "email",
+                        "value": "two@gmail.com"
+                    },
+                    {
+                        "name": "password",
+                        "value": "two@123"
+                    },
+                    {
+                        "name": "username",
+                        "value": "two007"
+                    }
+                ],
+                "files": [
+                    {
+                        "name": "avatar",
+                        "value": "/Users/mind/Downloads/icon.png"
+                    }
+                ]
+            }
+        },
+        {
+            "_id": "c077bc4c-55bf-485c-8f3e-9d23bfb700a9",
+            "colId": "3275e94e-d8ef-4091-98a1-40f30794b3b0",
+            "containerId": "e142b051-c31d-4734-8f1d-a9ce13f737bb",
+            "name": "login",
+            "url": "{{server}}/users/login",
+            "method": "POST",
+            "sortNum": 20000,
+            "created": "2024-08-30T10:50:05.126Z",
+            "modified": "2024-08-30T12:55:11.444Z",
+            "headers": [],
+            "body": {
+                "type": "json",
+                "raw": "{\n    \"email\":\"one@gmail.com\",\n    \"password\":\"one@007\"\n}",
+                "form": []
+            }
+        },
+        {
+            "_id": "dba03ce8-e953-450f-986c-6a3d0b2b99f9",
+            "colId": "3275e94e-d8ef-4091-98a1-40f30794b3b0",
+            "containerId": "e142b051-c31d-4734-8f1d-a9ce13f737bb",
+            "name": "logout",
+            "url": "{{server}}/users/logout",
+            "method": "POST",
+            "sortNum": 30000,
+            "created": "2024-08-30T10:50:05.127Z",
+            "modified": "2024-08-30T10:50:05.127Z",
+            "headers": [],
+            "body": {
+                "type": "json",
+                "raw": "{\n    \"email\":\"one@gmail.com\",\n    \"password\":\"one@123\"\n}"
+            }
+        },
+        {
+            "_id": "cd015b2d-671c-437b-b72d-c25acd51dd40",
+            "colId": "3275e94e-d8ef-4091-98a1-40f30794b3b0",
+            "containerId": "e142b051-c31d-4734-8f1d-a9ce13f737bb",
+            "name": "refresh-token",
+            "url": "{{server}}/users/refresh-token",
+            "method": "POST",
+            "sortNum": 40000,
+            "created": "2024-08-30T10:50:05.128Z",
+            "modified": "2024-08-30T10:50:05.128Z",
+            "headers": [],
+            "body": {
+                "type": "json",
+                "raw": "{\n    \"email\":\"one@gmail.com\",\n    \"password\":\"one@123\"\n}"
+            }
+        },
+        {
+            "_id": "6a4ff418-862b-4269-a730-100f17bc651d",
+            "colId": "3275e94e-d8ef-4091-98a1-40f30794b3b0",
+            "containerId": "e142b051-c31d-4734-8f1d-a9ce13f737bb",
+            "name": "change-password",
+            "url": "{{server}}/users/change-password",
+            "method": "POST",
+            "sortNum": 50000,
+            "created": "2024-08-30T12:30:59.844Z",
+            "modified": "2024-08-30T12:53:54.179Z",
+            "headers": [],
+            "body": {
+                "type": "json",
+                "raw": "{\n  \"oldPassword\": \"one@123\",\n  \"newPassword\": \"one@007\"\n}",
+                "form": []
+            },
+            "auth": {
+                "type": "bearer",
+                "bearer": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2NmNlZTVjNjgwN2NmMjZiNjgyZTU4MGUiLCJlbWFpbCI6Im9uZUBnbWFpbC5jb20iLCJ1c2VybmFtZSI6Im9uZTAwNyIsImZ1bGxOYW1lIjoib25lIiwiaWF0IjoxNzI1MDIxMTYzLCJleHAiOjE3MjUxMDc1NjN9.8dzltG4Kd9PtwoLtxOPsVZZjfBPwDepZpMlZ55PfftA"
+            }
+        },
+        {
+            "_id": "9a212736-5539-4ac7-852c-95074ea355fa",
+            "colId": "3275e94e-d8ef-4091-98a1-40f30794b3b0",
+            "containerId": "e142b051-c31d-4734-8f1d-a9ce13f737bb",
+            "name": "update-profile",
+            "url": "{{server}}/users/update-profile",
+            "method": "POST",
+            "sortNum": 60000,
+            "created": "2024-08-30T13:08:59.123Z",
+            "modified": "2024-08-30T13:18:30.933Z",
+            "headers": [],
+            "body": {
+                "type": "json",
+                "raw": "{\n  \"username\":\"abc\",\n  \"fullName\":\"nikhil gohil\",\n  \"email\":\"abc@gmail.com\"\n}",
+                "form": []
+            },
+            "auth": {
+                "type": "bearer",
+                "bearer": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2NmNlZTVjNjgwN2NmMjZiNjgyZTU4MGUiLCJlbWFpbCI6Im9uZUBnbWFpbC5jb20iLCJ1c2VybmFtZSI6Im9uZTAwNyIsImZ1bGxOYW1lIjoib25lIiwiaWF0IjoxNzI1MDIyNTExLCJleHAiOjE3MjUxMDg5MTF9.-l2S3ij4TX98IwJYl2CaN5CcV81l4TE3ppB2QhJrByM"
+            }
+        }
+    ],
+    "ref": "K0HSDZyo0Sy3xXni4Luzsu7oPIVvRtn56s4SVpNV7YyRSnv3DgNztp_nTtDxaccnu0z9LZPl-YlPMOmrKJaSPg"
+}
