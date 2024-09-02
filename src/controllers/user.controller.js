@@ -4,6 +4,7 @@ import { User } from "../models/user.model.js";
 import { uploadOnCloudinary } from "../utils/cloudinary.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import jwt from "jsonwebtoken";
+import nodemailer from "nodemailer";
 
 const generateAccessAndRefreshToken = async (userId) => {
   try {
@@ -80,13 +81,6 @@ const registerUser = asyncHandler(async (req, res) => {
 });
 
 const loginUser = asyncHandler(async (req, res) => {
-  // get data form req body.
-  // username or email
-  // find the user
-  // password check
-  // access and refresh token
-  // send cookies
-
   const { email, password, username } = req.body;
 
   if (!(username || email)) {
@@ -228,23 +222,107 @@ const changePassword = asyncHandler(async (req, res) => {
     .json(new ApiResponse(200, {}, "password change successfully"));
 });
 
-const updateProfile = asyncHandler(async(req,res)=>{
-
-  const {fullName,username,email} = req.body
+const updateProfile = asyncHandler(async (req, res) => {
+  const { fullName, username, email } = req.body;
 
   if (!(fullName && username && email)) {
-    throw new ApiError(401,"insufficient parameters")
+    throw new ApiError(401, "insufficient parameters");
   }
 
-  const user = await User.findById(req.user?._id).select("-password -refreshToken")
+  const user = await User.findById(req.user?._id).select(
+    "-password -refreshToken"
+  );
 
-  user.fullName = fullName
-  user.username = username
-  user.email = email
+  user.fullName = fullName;
+  user.username = username;
+  user.email = email;
 
-  await user.save({validateBeforeSave:false,new:true})
+  await user.save({ validateBeforeSave: false, new: true });
 
-return res.json(new ApiResponse(200,user,"user updated successfully"))
+  return res.json(new ApiResponse(200, user, "user updated successfully"));
+});
+
+const getConfigurationAndCode = async () => {
+  const code = Math.floor(Math.random() * (9999 - 1000 + 1) + 1000);
+
+  return { code };
+};
+
+const forgotPassword = asyncHandler(async (req, res) => {
+  const { email } = req.body;
+
+  if (!email.trim()) {
+    throw new ApiError(401, "email required");
+  }
+
+  const findUserByEmail = await User.findOne({ email });
+
+  if (!findUserByEmail) {
+    throw new ApiError(401, "No user found with this email");
+  }
+
+  const { code } = await getConfigurationAndCode();
+
+  var transport = nodemailer.createTransport({
+    host: "sandbox.smtp.mailtrap.io",
+    port: 2525,
+    auth: {
+      user: "7d60903b5106f5",
+      pass: "93a22a8f088f83",
+    },
+  });
+
+  await transport.sendMail({
+    sender: "nikhil.gohil007@yopmail.com",
+    to: "nikhil.gohil.mi@gmail.com",
+    subject: "You are awesome!",
+    text: `OTP for reset password ${code}`,
+  });
+
+  await User.findByIdAndUpdate(findUserByEmail._id, {
+    $set: {
+      otp: code,
+    },
+  });
+
+  return res.json(new ApiResponse(200, {}, "otp sent successfully"));
+});
+
+const verifyOtp = asyncHandler(async(req,res)=>{
+  const {otp,email} = req.body
+
+  if (!(otp || email.trim())) {
+    throw new ApiError(401,"Invalid parameters")
+  }
+  
+  const user = await User.findOne({email:email.trim(),otp:otp})
+  if (!user) {
+    throw new ApiError(401,"Wrong OTP")
+  }
+
+  return res.json(new ApiResponse(200,{},"OTP verified"))
+})
+
+const resetPassword = asyncHandler(async(req,res)=>{
+  const {email, otp, password} = req.body
+
+  if (!(email || otp || password)) {
+    throw new ApiError(401,"Invalid parameters")
+  }
+
+  const user = await User.findOne({email:email,otp:otp})
+  if (!user) {
+    throw new ApiError(401,"Wrong otp")
+  }
+
+  user.password = password
+  await user.save({validateBeforeSave:false})
+  await User.findByIdAndUpdate(user._id,{
+    $set:{
+      otp:null
+    }
+  })
+  return res.json(new ApiResponse(200,{},"Password reset successfully"))
 })
 
 export {
@@ -253,5 +331,8 @@ export {
   logoutUser,
   refreshAccessToken,
   changePassword,
-  updateProfile
+  updateProfile,
+  forgotPassword,
+  verifyOtp,
+  resetPassword
 };
