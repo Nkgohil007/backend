@@ -263,12 +263,12 @@ const forgotPassword = asyncHandler(async (req, res) => {
 
   const { code } = await getConfigurationAndCode();
 
-  var transport = nodemailer.createTransport({
-    host: "sandbox.smtp.mailtrap.io",
-    port: 2525,
+  const transport = nodemailer.createTransport({
+    host: process.env.MAILTRAP_HOST,
+    port: process.env.MAILTRAP_PORT,
     auth: {
-      user: "7d60903b5106f5",
-      pass: "93a22a8f088f83",
+      user: process.env.MAILTRAP_USER,
+      pass: process.env.MAILTRAP_PASSWORD,
     },
   });
 
