@@ -8,6 +8,7 @@ import {
   updateProfile,
   forgotPassword,
   verifyOtp,
+  getUsers,
   resetPassword,
 } from "../controllers/user.controller.js";
 import { upload } from "../middlewares/multer.middleware.js";
@@ -38,5 +39,6 @@ router.route("/update-profile").post(verifyJWT, updateProfile);
 router.route("/forgot-password").post(forgotPassword);
 router.route("/verify-otp").post(verifyOtp);
 router.route("/reset-password").post(resetPassword);
+router.route("").get(getUsers);
 
 export default router;

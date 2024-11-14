@@ -25,7 +25,7 @@ const generateAccessAndRefreshToken = async (userId) => {
 };
 
 const registerUser = asyncHandler(async (req, res) => {
-  const { fullName, email, username, password } = req.body;
+  const { fullName, email, username, password,role } = req.body;
 
   if (
     [fullName, email, username, password].some((field) => field?.trim() === "")
@@ -64,6 +64,7 @@ const registerUser = asyncHandler(async (req, res) => {
     coverImage: coverImage?.url || "",
     email,
     password,
+    role,
     username: username.toLowerCase(),
   });
 
@@ -109,11 +110,13 @@ const loginUser = asyncHandler(async (req, res) => {
     "-password -refreshToken"
   );
 
+   const accessibleTabs = user.getAccessibleTabs();
+
   const options = {
     httpOnly: true,
     secure: true,
   };
-
+  
   return res
     .status(200)
     .cookie("accessToken", accessToken, options)
@@ -122,7 +125,7 @@ const loginUser = asyncHandler(async (req, res) => {
       new ApiResponse(
         200,
         {
-          user: loggedInUser,
+          user:{...loggedInUser._doc, tabs:accessibleTabs},
           accessToken,
           refreshToken,
         },
@@ -325,6 +328,13 @@ const resetPassword = asyncHandler(async(req,res)=>{
   return res.json(new ApiResponse(200,{},"Password reset successfully"))
 })
 
+const getUsers = asyncHandler(async(req,res)=>{
+  const users = await User.find().select(["email","role","_id","username"])
+
+return res.json(new ApiResponse(200,users,"Users fetch successfully"))
+
+})
+
 export {
   registerUser,
   loginUser,
@@ -334,5 +344,6 @@ export {
   updateProfile,
   forgotPassword,
   verifyOtp,
-  resetPassword
+  resetPassword,
+  getUsers
 };
