@@ -6,7 +6,6 @@ const app = express()
 const port = 3000
 
 
-
 const jokes = [
   {
     id: 1,
@@ -42,6 +41,6 @@ app.get('/api/jokes', (req, res) => {
   res.send(jokes)
 })
 
-app.listen(port, () => {
-  console.log(`Example app listening on port ${port}`)
-})
+// app.listen(port, () => {
+//   console.log(`Example app listening on port ${port}`)
+// })

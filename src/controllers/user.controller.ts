@@ -1,31 +1,31 @@
-import { asyncHandler } from "../utils/asyncHandler.js";
+import { asyncHandler } from "@utils";
 import { ApiError } from "../utils/ApiError.js";
-import { User } from "../models/user.model.js";
+import { JwtDecodeToken, User } from "@models";
 import { uploadOnCloudinary } from "../utils/cloudinary.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
-import jwt from "jsonwebtoken";
+import jwt, { JwtPayload } from "jsonwebtoken";
+import * as process from "process";
+import { verifyJWTRequest } from "@middlewares";
 import nodemailer from "nodemailer";
 
-const generateAccessAndRefreshToken = async (userId) => {
+const generateAccessAndRefreshToken = async (userId: string) => {
   try {
     const user = await User.findById(userId);
-    const accessToken = user.generateAccessToken();
-    const refreshToken = user.generateRefreshToken();
-
-    user.refreshToken = refreshToken;
-    await user.save({ validateBeforeSave: false });
+    const accessToken = user?.generateAccessToken();
+    const refreshToken = user?.generateRefreshToken();
+    user!.refreshToken = refreshToken;
+    await user?.save({ validateBeforeSave: false });
 
     return { refreshToken, accessToken };
   } catch (error) {
-    throw new ApiError(
-      500,
+    throw new ApiError(      500,
       "Something went wrong while generating refresh token and access token"
     );
   }
 };
 
 const registerUser = asyncHandler(async (req, res) => {
-  const { fullName, email, username, password,role } = req.body;
+  const { fullName, email, username, password, role } = req.body;
 
   if (
     [fullName, email, username, password].some((field) => field?.trim() === "")
@@ -103,20 +103,18 @@ const loginUser = asyncHandler(async (req, res) => {
   }
 
   const { accessToken, refreshToken } = await generateAccessAndRefreshToken(
-    user._id
+    `${user?._id}`
   );
 
   const loggedInUser = await User.findById(user._id).select(
     "-password -refreshToken"
   );
 
-   const accessibleTabs = user.getAccessibleTabs();
-
   const options = {
     httpOnly: true,
     secure: true,
   };
-  
+
   return res
     .status(200)
     .cookie("accessToken", accessToken, options)
@@ -125,7 +123,7 @@ const loginUser = asyncHandler(async (req, res) => {
       new ApiResponse(
         200,
         {
-          user:{...loggedInUser._doc, tabs:accessibleTabs},
+          user: loggedInUser,
           accessToken,
           refreshToken,
         },
@@ -159,7 +157,7 @@ const logoutUser = asyncHandler(async (req, res) => {
     .json(new ApiResponse(200, {}, "User logged out"));
 });
 
-const refreshAccessToken = asyncHandler(async (req, res) => {
+const refreshAccessToken = asyncHandler(async (req: verifyJWTRequest, res) => {
   const incomingRefreshToken =
     req.cookies.refreshToken || req.body.refreshToken;
   console.log(":::::incomingRefreshToken", incomingRefreshToken);
@@ -169,8 +167,8 @@ const refreshAccessToken = asyncHandler(async (req, res) => {
   try {
     const decodedToken = jwt.verify(
       incomingRefreshToken,
-      process.env.REFRESH_TOKEN_SECRET
-    );
+      process.env.REFRESH_TOKEN_SECRET ?? ""
+    ) as JwtDecodeToken;
 
     const user = await User.findById(decodedToken?._id);
 
@@ -187,7 +185,7 @@ const refreshAccessToken = asyncHandler(async (req, res) => {
       secure: true,
     };
     const { accessToken, refreshToken } = await generateAccessAndRefreshToken(
-      user._id
+      `${user._id}`
     );
     return res
       .status(200)
@@ -240,7 +238,7 @@ const updateProfile = asyncHandler(async (req, res) => {
   user.username = username;
   user.email = email;
 
-  await user.save({ validateBeforeSave: false, new: true });
+  await user.save({ validateBeforeSave: false });
 
   return res.json(new ApiResponse(200, user, "user updated successfully"));
 });
@@ -251,89 +249,88 @@ const getConfigurationAndCode = async () => {
   return { code };
 };
 
-const forgotPassword = asyncHandler(async (req, res) => {
-  const { email } = req.body;
+// const forgotPassword = asyncHandler(async (req, res) => {
+//   const { email } = req.body;
 
-  if (!email.trim()) {
-    throw new ApiError(401, "email required");
-  }
+//   if (!email.trim()) {
+//     throw new ApiError(401, "email required");
+//   }
 
-  const findUserByEmail = await User.findOne({ email });
+//   const findUserByEmail = await User.findOne({ email });
 
-  if (!findUserByEmail) {
-    throw new ApiError(401, "No user found with this email");
-  }
+//   if (!findUserByEmail) {
+//     throw new ApiError(401, "No user found with this email");
+//   }
 
-  const { code } = await getConfigurationAndCode();
+//   const { code } = await getConfigurationAndCode();
 
-  const transport = nodemailer.createTransport({
-    host: process.env.MAILTRAP_HOST,
-    port: process.env.MAILTRAP_PORT,
-    auth: {
-      user: process.env.MAILTRAP_USER,
-      pass: process.env.MAILTRAP_PASSWORD,
-    },
-  });
+//   const transport = nodemailer.createTransport({
+//     host: process.env.MAILTRAP_HOST,
+//     port: process.env.MAILTRAP_PORT,
+//     auth: {
+//       user: process.env.MAILTRAP_USER,
+//       pass: process.env.MAILTRAP_PASSWORD,
+//     },
+//   });
 
-  await transport.sendMail({
-    sender: "nikhil.gohil007@yopmail.com",
-    to: "nikhil.gohil.mi@gmail.com",
-    subject: "You are awesome!",
-    text: `OTP for reset password ${code}`,
-  });
+//   await transport.sendMail({
+//     sender: "nikhil.gohil007@yopmail.com",
+//     to: "nikhil.gohil.mi@gmail.com",
+//     subject: "You are awesome!",
+//     text: `OTP for reset password ${code}`,
+//   });
 
-  await User.findByIdAndUpdate(findUserByEmail._id, {
-    $set: {
-      otp: code,
-    },
-  });
+//   await User.findByIdAndUpdate(findUserByEmail._id, {
+//     $set: {
+//       otp: code,
+//     },
+//   });
 
-  return res.json(new ApiResponse(200, {}, "otp sent successfully"));
-});
+//   return res.json(new ApiResponse(200, {}, "otp sent successfully"));
+// });
 
-const verifyOtp = asyncHandler(async(req,res)=>{
-  const {otp,email} = req.body
+const verifyOtp = asyncHandler(async (req, res) => {
+  const { otp, email } = req.body;
 
   if (!(otp || email.trim())) {
-    throw new ApiError(401,"Invalid parameters")
+    throw new ApiError(401, "Invalid parameters");
   }
-  
-  const user = await User.findOne({email:email.trim(),otp:otp})
+
+  const user = await User.findOne({ email: email.trim(), otp: otp });
   if (!user) {
-    throw new ApiError(401,"Wrong OTP")
+    throw new ApiError(401, "Wrong OTP");
   }
 
-  return res.json(new ApiResponse(200,{},"OTP verified"))
-})
+  return res.json(new ApiResponse(200, {}, "OTP verified"));
+});
 
-const resetPassword = asyncHandler(async(req,res)=>{
-  const {email, otp, password} = req.body
+const resetPassword = asyncHandler(async (req, res) => {
+  const { email, otp, password } = req.body;
 
   if (!(email || otp || password)) {
-    throw new ApiError(401,"Invalid parameters")
+    throw new ApiError(401, "Invalid parameters");
   }
 
-  const user = await User.findOne({email:email,otp:otp})
+  const user = await User.findOne({ email: email, otp: otp });
   if (!user) {
-    throw new ApiError(401,"Wrong otp")
+    throw new ApiError(401, "Wrong otp");
   }
 
-  user.password = password
-  await user.save({validateBeforeSave:false})
-  await User.findByIdAndUpdate(user._id,{
-    $set:{
-      otp:null
-    }
-  })
-  return res.json(new ApiResponse(200,{},"Password reset successfully"))
-})
+  user.password = password;
+  await user.save({ validateBeforeSave: false });
+  await User.findByIdAndUpdate(user._id, {
+    $set: {
+      otp: null,
+    },
+  });
+  return res.json(new ApiResponse(200, {}, "Password reset successfully"));
+});
 
-const getUsers = asyncHandler(async(req,res)=>{
-  const users = await User.find().select(["email","role","_id","username"])
+const getUsers = asyncHandler(async (req, res) => {
+  const users = await User.find().select(["email", "role", "_id", "username"]);
 
-return res.json(new ApiResponse(200,users,"Users fetch successfully"))
-
-})
+  return res.json(new ApiResponse(200, users, "Users fetch successfully"));
+});
 
 export {
   registerUser,
@@ -342,8 +339,7 @@ export {
   refreshAccessToken,
   changePassword,
   updateProfile,
-  forgotPassword,
   verifyOtp,
   resetPassword,
-  getUsers
+  getUsers,
 };
