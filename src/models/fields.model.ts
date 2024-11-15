@@ -1,13 +1,13 @@
-import mongoose, { Model, Schema } from 'mongoose'
+import mongoose, { Schema } from "mongoose";
 
 interface IFields extends Document {
-  name: string
-  type: 'FIELD' | 'IMAGE'
-  image?: string
-  field?: string
-  defaultValue?: boolean
-  createdBy: mongoose.Types.ObjectId
-  isActive?: boolean
+  name: string;
+  type: "FIELD" | "IMAGE";
+  image?: string;
+  field?: string;
+  defaultValue?: boolean;
+  createdBy: mongoose.Types.ObjectId;
+  isActive?: boolean;
 }
 
 const fieldsSchema = new Schema<IFields>(
@@ -15,35 +15,35 @@ const fieldsSchema = new Schema<IFields>(
     name: {
       type: String,
       required: true,
-      index: true
+      index: true,
     },
     type: {
       type: String,
       required: true,
-      enum: ['FIELD', 'IMAGE']
+      enum: ["FIELD", "IMAGE"],
     },
     image: {
-      type: String
+      type: String,
     },
     field: {
-      type: String
+      type: String,
     },
     defaultValue: {
       type: Boolean,
-      default: false
+      default: false,
     },
     createdBy: {
       type: Schema.Types.ObjectId,
-      ref: 'User'
+      ref: "User",
     },
     isActive: {
       type: Boolean, // cloudinary url
-      default: true
-    }
+      default: true,
+    },
   },
   {
-    timestamps: true
+    timestamps: true,
   }
-)
+);
 
-export default mongoose.model<IFields>('Fields', fieldsSchema)
+export default mongoose.model<IFields>("Fields", fieldsSchema);

@@ -5,10 +5,9 @@ import {
   uploadOnCloudinary,
 } from "@utils";
 import { JwtDecodeToken, User } from "@models";
-import jwt, { JwtPayload } from "jsonwebtoken";
+import jwt from "jsonwebtoken";
 import * as process from "process";
 import { verifyJWTRequest } from "@middlewares";
-import nodemailer from "nodemailer";
 
 const generateAccessAndRefreshToken = async (userId: string) => {
   try {
@@ -19,7 +18,7 @@ const generateAccessAndRefreshToken = async (userId: string) => {
     await user?.save({ validateBeforeSave: false });
 
     return { refreshToken, accessToken };
-  } catch (error) {
+  } catch (_error: any) {
     throw new ApiError(
       500,
       "Something went wrong while generating refresh token and access token"
@@ -241,11 +240,11 @@ const updateProfile = asyncHandler(async (req, res) => {
   return res.json(new ApiResponse(200, user, "user updated successfully"));
 });
 
-const getConfigurationAndCode = async () => {
-  const code = Math.floor(Math.random() * (9999 - 1000 + 1) + 1000);
+// const getConfigurationAndCode = async () => {
+//   const code = Math.floor(Math.random() * (9999 - 1000 + 1) + 1000);
 
-  return { code };
-};
+//   return { code };
+// };
 
 // const forgotPassword = asyncHandler(async (req, res) => {
 //   const { email } = req.body;
