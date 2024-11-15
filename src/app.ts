@@ -2,7 +2,7 @@ import dotenv from "dotenv";
 import express from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
-import { fieldRoutes, userRoutes } from "@routes";
+import { categoryRoutes, fieldRoutes, userRoutes } from "@routes";
 
 dotenv.config({
   path: "./.env",
@@ -25,6 +25,7 @@ app.use(cookieParser());
 //routes declaration
 app.use("/api/v1/users", userRoutes);
 app.use("/api/v1/fields", fieldRoutes);
+app.use("/api/v1/category", categoryRoutes);
 
 // http://localhost:8000/api/v1/users/register
 

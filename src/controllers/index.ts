@@ -11,6 +11,8 @@ import {
   getUsers,
 } from "./user.controller";
 
+import { addCategory, editCategory, getCategory } from "./category.controller";
+
 export {
   addFields,
   getFields,
@@ -24,4 +26,7 @@ export {
   verifyOtp,
   resetPassword,
   getUsers,
+  addCategory,
+  editCategory,
+  getCategory,
 };

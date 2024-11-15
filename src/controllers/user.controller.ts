@@ -1,8 +1,10 @@
-import { asyncHandler } from "@utils";
-import { ApiError } from "../utils/ApiError.js";
+import {
+  asyncHandler,
+  ApiResponse,
+  ApiError,
+  uploadOnCloudinary,
+} from "@utils";
 import { JwtDecodeToken, User } from "@models";
-import { uploadOnCloudinary } from "../utils/cloudinary.js";
-import { ApiResponse } from "../utils/ApiResponse.js";
 import jwt, { JwtPayload } from "jsonwebtoken";
 import * as process from "process";
 import { verifyJWTRequest } from "@middlewares";
@@ -18,7 +20,8 @@ const generateAccessAndRefreshToken = async (userId: string) => {
 
     return { refreshToken, accessToken };
   } catch (error) {
-    throw new ApiError(      500,
+    throw new ApiError(
+      500,
       "Something went wrong while generating refresh token and access token"
     );
   }
@@ -32,16 +35,13 @@ const registerUser = asyncHandler(async (req, res) => {
   ) {
     throw new ApiError(400, "All fields are required");
   }
-  console.log("userName", username);
-  console.log("email", email);
+
   const existedUser = await User.findOne({
     $or: [{ username }, { email }],
   });
-  console.log(":::::", existedUser);
   if (existedUser) {
     throw new ApiError(409, "User with email or username already exists");
   }
-  console.log("req.files", req.files);
   const avatarLocalPath = req.files?.avatar[0]?.path;
   const coverImageLocalPath = req.files?.coverImage
     ? req.files?.coverImage[0]?.path
@@ -160,7 +160,6 @@ const logoutUser = asyncHandler(async (req, res) => {
 const refreshAccessToken = asyncHandler(async (req: verifyJWTRequest, res) => {
   const incomingRefreshToken =
     req.cookies.refreshToken || req.body.refreshToken;
-  console.log(":::::incomingRefreshToken", incomingRefreshToken);
   if (!incomingRefreshToken) {
     throw new ApiError(401, "unauthorized request");
   }
@@ -175,7 +174,6 @@ const refreshAccessToken = asyncHandler(async (req: verifyJWTRequest, res) => {
     if (!user) {
       throw new ApiError(401, "Invalid refresh token");
     }
-    console.log("user?.refreshToken", user?.refreshToken);
     if (incomingRefreshToken !== user?.refreshToken) {
       throw new ApiError(401, "Refresh token is expired or used");
     }
